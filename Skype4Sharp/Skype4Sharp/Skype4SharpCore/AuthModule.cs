@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace Skype4Sharp.Skype4SharpCore
 {
@@ -50,7 +51,7 @@ namespace Skype4Sharp.Skype4SharpCore
                         return new Regex("type=\"hidden\" name=\"skypetoken\" value=\"(.*?)\"").Match(new StreamReader(webResponse.GetResponseStream()).ReadToEnd()).Groups[1].ToString();
                     }
                 case Enums.SkypeTokenType.MSNP24:
-                    HttpWebRequest MSNP24TokenRequest = parentSkype.mainFactory.createWebRequest_POST("https://api.skype.com/login/skypetoken", new string[][] { }, Encoding.ASCII.GetBytes(string.Format("scopes=client&clientVersion=0/7.17.0.105//&username={0}&passwordHash={1}", parentSkype.authInfo.Username, Convert.ToBase64String(Helpers.Misc.hashMD5_Byte(string.Format("{0}\nskyper\n{1}", parentSkype.authInfo.Username, parentSkype.authInfo.Password))))), "");
+                    HttpWebRequest MSNP24TokenRequest = parentSkype.mainFactory.createWebRequest_POST("https://api.skype.com/login/skypetoken", new string[][] { }, Encoding.ASCII.GetBytes(string.Format("scopes=client&clientVersion=0%2F7.4.85.102%2F259%2F&username={0}&passwordHash={1}", HttpUtility.UrlEncode(parentSkype.authInfo.Username.ToLower()), HttpUtility.UrlEncode(CalculateHash(parentSkype.authInfo.Username.ToLower(), parentSkype.authInfo.Password)))), "");
                     string rawJSON = "";
                     using (HttpWebResponse webResponse = (HttpWebResponse)MSNP24TokenRequest.GetResponse())
                     {
@@ -113,6 +114,15 @@ namespace Skype4Sharp.Skype4SharpCore
             parentSkype.selfProfile.DisplayName = finalName;
             parentSkype.selfProfile.Username = userName;
             parentSkype.selfProfile.Type = Enums.UserType.Normal;
+        }
+
+        private string CalculateHash(string username, string password)
+        {
+            return Convert.ToBase64String(Helpers.Misc.hashMD5_Byte(
+                string.Format("{0}\nskyper\n{1}",
+                    username,
+                    password
+                )));
         }
     }
 }

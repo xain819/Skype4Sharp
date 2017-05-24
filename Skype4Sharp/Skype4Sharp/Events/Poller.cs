@@ -62,6 +62,7 @@ namespace Skype4Sharp.Events
                     }
                 }
             }).Start();
+            /* Outdated
             new Thread(() => // Contact Requests
             {
                 runningPolls.Add(Thread.CurrentThread);
@@ -99,7 +100,7 @@ namespace Skype4Sharp.Events
                         }
                     }
                 }
-            }).Start();
+            }).Start();*/
         }
         public void ProcessPoll(string rawInfo)
         {
